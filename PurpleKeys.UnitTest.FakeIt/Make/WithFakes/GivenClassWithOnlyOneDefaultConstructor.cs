@@ -1,4 +1,4 @@
-namespace PurpleKeys.UnitTest.FakeIt.Fill.WithFakes;
+namespace PurpleKeys.UnitTest.FakeIt.Make.WithFakes;
 using PurpleKeys.FakeIt;
 
 public class GivenClassWithOnlyOneDefaultConstructor
@@ -7,10 +7,12 @@ public class GivenClassWithOnlyOneDefaultConstructor
     public void ParameterIsProvided_InstanceIsCreatedWithProvidedArgument()
     {
         var parameter = new Parameter();
-        var result = Fill.WithFakes<MakeThis<Parameter>>(new Dictionary<string, object?>
+        var args = new Dictionary<string, object?>
         {
             { "parameter", parameter }
-        });
+        };
+
+        var result = Make.WithFakes<MakeThis<Parameter>>(args);
 
         Assert.NotNull(result);
         Assert.Same(parameter, result.ParameterValue);
@@ -19,27 +21,31 @@ public class GivenClassWithOnlyOneDefaultConstructor
     [Fact]
     public void UnknownParameterIsProvided_InvalidOperationExceptionIsThrown()
     {
+        var args = new Dictionary<string, object?>
+        {
+            { "unknownParameter", new Parameter() }
+        };
+
         Assert.Throws<InvalidOperationException>(() =>
-            Fill.WithFakes<MakeThis<Parameter>>(new Dictionary<string, object?>
-            {
-                { "unknownParameter", new Parameter() }
-            }));
+            Make.WithFakes<MakeThis<Parameter>>(args));
     }
 
     [Fact]
     public void ParameterOfWrongTypeIsProvided_InvalidOperationExceptionIsThrown()
     {
+        var args = new Dictionary<string, object?>
+        {
+            { "parameter", new object() }
+        };
+
         Assert.Throws<InvalidOperationException>(() =>
-            Fill.WithFakes<MakeThis<Parameter>>(new Dictionary<string, object?>
-            {
-                { "parameter", new object() }
-            }));
+            Make.WithFakes<MakeThis<Parameter>>(args));
     }
 
     [Fact]
     public void NullParameterIsProvided_InstanceIsCreatedWithProvidedArgument()
     {
-        var result = Fill.WithFakes<MakeThis<Parameter>>(new Dictionary<string, object?>
+        var result =Make.WithFakes<MakeThis<Parameter>>(new Dictionary<string, object?>
         {
             { "parameter", null }
         });
@@ -50,7 +56,7 @@ public class GivenClassWithOnlyOneDefaultConstructor
     [Fact]
     public void NullableParameterIsProvided_InstanceIsCreatedWithProvidedArgument()
     {
-        var result = Fill.WithFakes<MakeThis<int?>>(new Dictionary<string, object?>
+        var result = Make.WithFakes<MakeThis<int?>>(new Dictionary<string, object?>
         {
             { "parameter", null }
         });
@@ -61,7 +67,7 @@ public class GivenClassWithOnlyOneDefaultConstructor
     [Fact]
     public void NoParametersProvided_InstanceIsCreatedWithDefaultMocksForArguments()
     {
-        var result = Fill.WithFakes<MakeThis<Parameter>>();
+        var result = Make.WithFakes<MakeThis<Parameter>>();
 
         Assert.NotNull(result);
         Assert.NotNull(result.ParameterValue);

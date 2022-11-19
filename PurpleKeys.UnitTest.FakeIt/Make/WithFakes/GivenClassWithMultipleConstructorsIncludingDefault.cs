@@ -1,5 +1,7 @@
 namespace PurpleKeys.UnitTest.FakeIt.Make.WithFakes;
+
 using PurpleKeys.FakeIt;
+
 public class GivenClassWithMultipleConstructorsIncludingDefault
 {
     [Fact]

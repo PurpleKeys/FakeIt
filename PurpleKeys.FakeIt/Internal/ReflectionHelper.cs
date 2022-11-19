@@ -4,19 +4,22 @@ namespace PurpleKeys.FakeIt.Internal
 {
     internal static class ReflectionHelper
     {
-        public static bool MethodHasParametersForAllParameters(MethodBase method, Dictionary<string, object?> withDependencies)
+        public static bool MethodHasParametersForAllParameters(MethodBase method,
+            Dictionary<string, object?> withDependencies)
         {
             var parameters = method.GetParameters();
             return withDependencies.Keys.All(k => MatchParametersAndArguments(withDependencies, k, parameters));
         }
 
-        public static (MethodBase, ParameterInfo[]) ParametersForMethod(IReadOnlyList<MethodBase> methods, Dictionary<string, object?> specifiedParameterValues)
+        public static (MethodBase, ParameterInfo[]) ParametersForMethod(IReadOnlyList<MethodBase> methods,
+            Dictionary<string, object?> specifiedParameterValues)
         {
             if (methods.Count == 1)
             {
                 if (!MethodHasParametersForAllParameters(methods[0], specifiedParameterValues))
                 {
-                    throw new InvalidOperationException("Can not Fake It with dependencies not existing on the method.");
+                    throw new InvalidOperationException(
+                        "Can not Fake It with dependencies not existing on the method.");
                 }
 
                 var parameters = methods[0].GetParameters();
@@ -35,7 +38,8 @@ namespace PurpleKeys.FakeIt.Internal
             return (possibleOptions[0], possibleOptions[0].GetParameters());
         }
 
-        private static bool MatchParametersAndArguments(IDictionary<string, object?> withDependencies, string argumentName, ParameterInfo[] parameters)
+        private static bool MatchParametersAndArguments(IDictionary<string, object?> withDependencies,
+            string argumentName, ParameterInfo[] parameters)
         {
             var parameter = parameters.FirstOrDefault(p => p.Name == argumentName);
             var value = withDependencies[argumentName];

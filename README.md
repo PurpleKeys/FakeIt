@@ -27,3 +27,26 @@ var deps = new Dictionary<string, object?>{
 
  Make.WithFakes<Service>(deps);
 ```
+
+## Calling Actions
+Given a method has a large number of arguments, creating an implementation or Moq for all or a subset of parameters can result in ugly test code. Using FakeIt `Call` we can reduce the amount of fluff.
+
+Given a method with a lot of arguments:
+```C#
+public void AddToBasket(IUser user, IBasket basket, IProduct product, decimal quantity, ILog log, IValidator validator)
+```
+
+We can `Mock.Of<>' for all arguments using:
+```C#
+var basketService = ...
+Call.WithFakes(basketService, nameof(IBasketService.AddToBasket));
+```
+
+To provide only one argument we can use the following:
+```C#
+var basketService = ...
+var args = new Dictionary<string, object>{
+    {"validator", Mock.Of<IValidator>(v => v.IsValid() == false)}
+};
+Call.WithFakes(basketService, nameof(IBasketService.AddToBasket), args);
+```

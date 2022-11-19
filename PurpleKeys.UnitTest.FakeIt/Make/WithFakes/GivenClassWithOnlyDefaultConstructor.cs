@@ -1,4 +1,5 @@
-namespace PurpleKeys.UnitTest.FakeIt.Fill.WithFakes;
+namespace PurpleKeys.UnitTest.FakeIt.Make.WithFakes;
+
 using PurpleKeys.FakeIt;
 
 public class GivenClassWithOnlyDefaultConstructor
@@ -6,7 +7,7 @@ public class GivenClassWithOnlyDefaultConstructor
     [Fact]
     public void InstanceIsCreated()
     {
-        var result = Fill.WithFakes<MakeThis>();
+        var result = Make.WithFakes<MakeThis>();
 
         Assert.NotNull(result);
     }
@@ -14,12 +15,16 @@ public class GivenClassWithOnlyDefaultConstructor
     [Fact]
     public void ParameterIsProvided_InvalidOperationExceptionIsThrown()
     {
+        var args = new Dictionary<string, object?>
+        {
+            { "parameter", new object() }
+        };
+
         Assert.Throws<InvalidOperationException>(() =>
-            Fill.WithFakes<MakeThis>(new Dictionary<string, object?>
-            {
-                { "parameter", new object() }
-            }));
+            Make.WithFakes<MakeThis>(args));
     }
 
-    public class MakeThis { }
+    public class MakeThis
+    {
+    }
 }

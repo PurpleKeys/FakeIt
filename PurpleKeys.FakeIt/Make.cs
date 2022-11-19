@@ -10,9 +10,10 @@ namespace PurpleKeys.FakeIt
             var constructors = PublicConstructors<T>();
             if (constructors.Length != 1)
             {
-                throw new InvalidOperationException("Can not Fake It when a constructor is not available or has multiple public constructors");
+                throw new InvalidOperationException(
+                    "Can not Fake It when a constructor is not available or has multiple public constructors");
             }
-            
+
             var arguments = MockFactory.ParametersToArg(constructors[0].GetParameters());
             return (T)((ConstructorInfo)constructors[0]).Invoke(arguments);
         }
@@ -25,7 +26,7 @@ namespace PurpleKeys.FakeIt
 
             return (T)((ConstructorInfo)constructor).Invoke(arguments);
         }
-        
+
         private static MethodBase[] PublicConstructors<T>()
         {
             return typeof(T).GetConstructors(BindingFlags.Public | BindingFlags.Instance).Cast<MethodBase>().ToArray();

@@ -9,7 +9,8 @@ namespace PurpleKeys.FakeIt.Internal
 
         static MockFactory()
         {
-            GetDefaultMethodInfo = typeof(MockFactory).GetMethod(nameof(GetDefault), BindingFlags.Static | BindingFlags.NonPublic)!;
+            GetDefaultMethodInfo =
+                typeof(MockFactory).GetMethod(nameof(GetDefault), BindingFlags.Static | BindingFlags.NonPublic)!;
         }
 
         public static object? CreateMockOf(Type type)
@@ -25,10 +26,11 @@ namespace PurpleKeys.FakeIt.Internal
                 .Invoke(null, Array.Empty<object>());
         }
 
-        public static object? UseValueOrCreateMockOf(IReadOnlyDictionary<string, object?> withDependencies, ParameterInfo p)
+        public static object? UseValueOrCreateMockOf(IReadOnlyDictionary<string, object?> withDependencies,
+            ParameterInfo p)
         {
-            return withDependencies.TryGetValue(p.Name ?? string.Empty, out var dependency) 
-                ? dependency 
+            return withDependencies.TryGetValue(p.Name ?? string.Empty, out var dependency)
+                ? dependency
                 : CreateMockOf(p.ParameterType);
         }
 

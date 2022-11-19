@@ -1,7 +1,8 @@
 ﻿namespace PurpleKeys.UnitTest.FakeIt.Call.WithFakes;
+
 using PurpleKeys.FakeIt;
 
-public class FillTests
+public class CallTests
 {
     [Theory]
     [InlineData("Action")]
@@ -30,7 +31,7 @@ public class FillTests
         {
             { "parameter", "text" }
         };
-        Assert.Throws<InvalidOperationException>(() => 
+        Assert.Throws<InvalidOperationException>(() =>
             Call.WithFakes(this, nameof(CallMe.ActionWithParameter), parameters));
     }
 
@@ -75,8 +76,9 @@ public class FillTests
             set => _staticActionInvokes = value;
         }
 
-        public string Argument { get; set; }
-        public static string StaticArgument { get; set; }
+        public string? Argument { get; set; }
+
+        public static string? StaticArgument { get; set; }
 
         public void Action()
         {

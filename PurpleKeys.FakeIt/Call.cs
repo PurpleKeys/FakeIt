@@ -31,18 +31,20 @@ namespace PurpleKeys.FakeIt
                 .Where(m => m.Name == method).ToArray();
 
             RequiredSingleActionGuard(targetMethods);
-            
+
             var parameters = targetMethods[0].GetParameters();
             var arguments = MockFactory.ParametersToArg(parameters);
 
             targetMethods[0].Invoke(null, arguments);
         }
 
-        public static void WithFakes(object target, string actionName, Dictionary<string, object?> specifiedParameterValues)
+        public static void WithFakes(object target, string actionName,
+            Dictionary<string, object?> specifiedParameterValues)
         {
             target = target ?? throw new ArgumentNullException(nameof(target));
             actionName = actionName ?? throw new ArgumentNullException(nameof(actionName));
-            specifiedParameterValues = specifiedParameterValues ?? throw new ArgumentNullException(nameof(specifiedParameterValues));
+            specifiedParameterValues = specifiedParameterValues ??
+                                       throw new ArgumentNullException(nameof(specifiedParameterValues));
 
             var methods = target.GetType()
                 .GetMethods(BindingFlags.Public | BindingFlags.Instance)
