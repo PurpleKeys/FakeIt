@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 
-namespace PurpleKeys.FakeIt.Internal
+namespace PurpleKeys.FakeIt.InternalUse
 {
-    internal static class ReflectionHelper
+    public static class ReflectionHelper
     {
         public static bool MethodHasParametersForAllParameters(
             MethodBase method,
@@ -39,6 +39,24 @@ namespace PurpleKeys.FakeIt.Internal
             matchingParameters = possibleOptions[0].GetParameters();
             matchingErrorMessage = string.Empty;
             return true;
+        }
+
+        public static IReadOnlyDictionary<string, object?> ObjectToDictionary(object? value)
+        {
+            if (value == null)
+            {
+                return new Dictionary<string, object?>();
+            }
+
+            if (value is IReadOnlyDictionary<string, object?> parameterDictionary)
+            {
+                return parameterDictionary;
+            }
+
+            var dictionary = value.GetType()?.GetProperties()
+                .ToDictionary(k => k.Name, v => v.GetValue(value));
+
+            return dictionary ?? new Dictionary<string, object?>();
         }
 
         private static bool MatchParametersAndArguments(

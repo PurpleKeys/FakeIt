@@ -18,9 +18,9 @@ namespace PurpleKeys.UnitTest.FakeIt.Call.WithFakes
         [Fact]
         public override void WithProvidedValues_ReturnsValue()
         {
-            var args = new Dictionary<string, object?>
+            var args = new 
             {
-                { "text", "TestValue" }
+                text = "TestValue"
             };
 
             var result = Call.WithFakes<CallMe, string>(nameof(CallMe.StaticFuncWithParameter), args);
@@ -33,9 +33,9 @@ namespace PurpleKeys.UnitTest.FakeIt.Call.WithFakes
         [InlineData(nameof(CallMe.StaticFuncWithParameter))]
         public override void WithInvalidParameterNames_ThrowsFakeItDiscoveryException(string methodName)
         {
-            var args = new Dictionary<string, object?>
+            var args = new
             {
-                { "invalidName", "TestValue" }
+                invalidName = "TestValue"
             };
             
             Assert.Throws<FakeItDiscoveryException>(
@@ -53,9 +53,9 @@ namespace PurpleKeys.UnitTest.FakeIt.Call.WithFakes
         [Fact]
         public override void WithInvalidParameterType_ThrowsFakeItDiscoveryException()
         {
-            var args = new Dictionary<string, object?>
+            var args = new 
             {
-                { "text", 123 }
+                text = 123
             };
             
             Assert.Throws<FakeItDiscoveryException>(

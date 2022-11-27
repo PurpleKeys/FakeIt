@@ -1,5 +1,5 @@
-﻿using PurpleKeys.FakeIt.Internal;
-using System.Reflection;
+﻿using System.Reflection;
+using PurpleKeys.FakeIt.InternalUse;
 
 namespace PurpleKeys.FakeIt
 {
@@ -36,25 +36,25 @@ namespace PurpleKeys.FakeIt
         }
 
         public static void WithFakes<TTarget>(
-            string actionName, 
-            Dictionary<string, object?> specifiedParameterValues)
+            string actionName,
+            object specifiedParameters)
         {
             actionName = actionName ?? throw new ArgumentNullException(nameof(actionName));
-
+            var specifiedParametersDictionary = ReflectionHelper.ObjectToDictionary(specifiedParameters);
             var methods = TargetMethods<TTarget>(actionName, BindingFlags.Static);
 
-            RequiredSingleActionGuard<TTarget>(methods, actionName, specifiedParameterValues, false);
+            RequiredSingleActionGuard<TTarget>(methods, actionName, specifiedParametersDictionary, false);
 
-            if (!ReflectionHelper.TryParametersForMethod(methods, specifiedParameterValues, 
+            if (!ReflectionHelper.TryParametersForMethod(methods, specifiedParametersDictionary, 
                     out var matchingMethod, out var matchingParameters, out var matchingErrorMessage))
             {
                 throw FakeItDiscoveryException.CreateStatic(
                     matchingErrorMessage, 
                     typeof(TTarget), 
                     actionName,
-                    specifiedParameterValues);
+                    specifiedParametersDictionary);
             }
-            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParameterValues);
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParametersDictionary);
 
             matchingMethod!.Invoke(null, arguments);
         }
@@ -62,26 +62,27 @@ namespace PurpleKeys.FakeIt
         public static void WithFakes<TTarget>(
             TTarget target, 
             string actionName,
-            Dictionary<string, object?> specifiedParameterValues)
+            object specifiedParameters)
         {
             target = target ?? throw new ArgumentNullException(nameof(target));
             actionName = actionName ?? throw new ArgumentNullException(nameof(actionName));
-            specifiedParameterValues = specifiedParameterValues ??
-                                       throw new ArgumentNullException(nameof(specifiedParameterValues));
+            specifiedParameters = specifiedParameters ?? throw new ArgumentNullException(nameof(specifiedParameters));
+
+            var specifiedParametersDictionary = ReflectionHelper.ObjectToDictionary(specifiedParameters);
 
             var methods = TargetMethods<TTarget>(actionName, BindingFlags.Instance);
 
-            if (!ReflectionHelper.TryParametersForMethod(methods, specifiedParameterValues,
+            if (!ReflectionHelper.TryParametersForMethod(methods, specifiedParametersDictionary,
                     out var matchingMethod, out var matchingParameters, out var matchingErrorMessage))
             {
                 throw FakeItDiscoveryException.CreateInstance(
                     matchingErrorMessage,
                     typeof(TTarget),
                     actionName,
-                    specifiedParameterValues);
+                    specifiedParametersDictionary);
             }
 
-            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParameterValues);
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParametersDictionary);
 
             matchingMethod!.Invoke(target, arguments);
         }
@@ -113,43 +114,45 @@ namespace PurpleKeys.FakeIt
             return (TReturn?)targetMethods[0].Invoke(null, arguments);
         }
 
-        public static TReturn? WithFakes<TTarget, TReturn>(string functionName, IReadOnlyDictionary<string, object?> specifiedParameterValues)
+        public static TReturn? WithFakes<TTarget, TReturn>(string functionName, object specifiedParameterValues)
         {
+            var specifiedParametersDictionary = ReflectionHelper.ObjectToDictionary(specifiedParameterValues);
             var targetMethods = TargetMethods<TTarget, TReturn>(functionName, BindingFlags.Static);
 
-            RequiredSingleActionGuard<TTarget>(targetMethods, functionName, specifiedParameterValues, false);
+            RequiredSingleActionGuard<TTarget>(targetMethods, functionName, specifiedParametersDictionary, false);
 
-            if (!ReflectionHelper.TryParametersForMethod(targetMethods, specifiedParameterValues,
+            if (!ReflectionHelper.TryParametersForMethod(targetMethods, specifiedParametersDictionary,
                     out var matchingMethod, out var matchingParameters, out var matchingErrorMessage))
             {
                 throw FakeItDiscoveryException.CreateStatic(
                     matchingErrorMessage,
                     typeof(TTarget),
                     functionName,
-                    specifiedParameterValues);
+                    specifiedParametersDictionary);
             }
 
-            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParameterValues);
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParametersDictionary);
 
             return (TReturn?)matchingMethod!.Invoke(null, arguments);
         }
 
-        public static TReturn? WithFakes<TTarget, TReturn>(TTarget target, string functionName, IReadOnlyDictionary<string, object?> specifiedParameterValues)
+        public static TReturn? WithFakes<TTarget, TReturn>(TTarget target, string functionName, object specifiedParameterValues)
         {
+            var specifiedParametersDictionary = ReflectionHelper.ObjectToDictionary(specifiedParameterValues);
             var targetMethods = TargetMethods<TTarget, TReturn>(functionName, BindingFlags.Instance);
 
-            RequiredSingleActionGuard<TTarget>(targetMethods, functionName, specifiedParameterValues, true);
+            RequiredSingleActionGuard<TTarget>(targetMethods, functionName, specifiedParametersDictionary, true);
 
-            if (!ReflectionHelper.TryParametersForMethod(targetMethods, specifiedParameterValues,
+            if (!ReflectionHelper.TryParametersForMethod(targetMethods, specifiedParametersDictionary,
                     out var matchingMethod, out var matchingParameters, out var matchingErrorMessage))
             {
                 throw FakeItDiscoveryException.CreateInstance(
                     matchingErrorMessage,
                     typeof(TTarget),
                     functionName,
-                    specifiedParameterValues);
+                    specifiedParametersDictionary);
             }
-            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParameterValues);
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParametersDictionary);
 
             return (TReturn?)matchingMethod!.Invoke(target, arguments);
         }

@@ -8,9 +8,9 @@ public class GivenClassWithOnlyOneDefaultConstructor
     public void ParameterIsProvided_InstanceIsCreatedWithProvidedArgument()
     {
         var parameter = new Parameter();
-        var args = new Dictionary<string, object?>
+        var args = new 
         {
-            { "parameter", parameter }
+            parameter
         };
 
         var result = Make.WithFakes<MakeThis<Parameter>>(args);
@@ -22,9 +22,9 @@ public class GivenClassWithOnlyOneDefaultConstructor
     [Fact]
     public void UnknownParameterIsProvided_ThrowsFakeItDiscoveryException()
     {
-        var args = new Dictionary<string, object?>
+        var args = new
         {
-            { "unknownParameter", new Parameter() }
+            unknownParameter = new Parameter()
         };
 
         Assert.Throws<FakeItDiscoveryException>(() =>
@@ -34,9 +34,9 @@ public class GivenClassWithOnlyOneDefaultConstructor
     [Fact]
     public void ParameterOfWrongTypeIsProvided_ThrowsFakeItDiscoveryException()
     {
-        var args = new Dictionary<string, object?>
+        var args = new 
         {
-            { "parameter", new object() }
+            parameter = new object()
         };
 
         Assert.Throws<FakeItDiscoveryException>(() =>

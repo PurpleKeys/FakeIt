@@ -22,7 +22,15 @@ To use `Mock.Of<>` for all dependencies:
 Specify a specific value for one, or more depednencies and use `Mock.Of<>` for all other dependencies:
 ```C#
 var deps = new Dictionary<string, object?>{
-    {"validator" : Mock.Of<IValidator>(v => v.IsValid(It.IsAny<object>()) == false)
+    {"validator" : Mock.Of<IValidator>(v => v.IsValid(It.IsAny<object>()) == false)}
+};
+
+ Make.WithFakes<Service>(deps);
+```
+or
+```C#
+var deps = new {
+    validator = Mock.Of<IValidator>(v => v.IsValid(It.IsAny<object>()) == false)
 };
 
  Make.WithFakes<Service>(deps);
@@ -47,6 +55,14 @@ To provide only one argument we can use the following:
 var basketService = ...
 var args = new Dictionary<string, object>{
     {"validator", Mock.Of<IValidator>(v => v.IsValid() == false)}
+};
+Call.WithFakes(basketService, nameof(IBasketService.AddToBasket), args);
+```
+Or
+```C#
+var basketService = ...
+var args = new{
+    validator = Mock.Of<IValidator>(v => v.IsValid() == false)
 };
 Call.WithFakes(basketService, nameof(IBasketService.AddToBasket), args);
 ```

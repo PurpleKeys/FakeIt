@@ -16,9 +16,9 @@ public class GivenClassWithOnlyDefaultConstructor
     [Fact]
     public void ParameterIsProvided_ThrowsFakeItDiscoveryException()
     {
-        var args = new Dictionary<string, object?>
+        var args = new 
         {
-            { "parameter", new object() }
+            parameter =  new object()
         };
 
         Assert.Throws<FakeItDiscoveryException>(() =>

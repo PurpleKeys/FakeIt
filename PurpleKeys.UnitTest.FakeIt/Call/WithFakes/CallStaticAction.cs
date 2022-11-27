@@ -25,9 +25,9 @@ public class CallStaticAction : CallActionsTests
     public override void WithParameter_CallsAction()
     {
         CallMe.StaticActionInvokes = 0;
-        var parameters = new Dictionary<string, object?>
+        var parameters = new
         {
-            { "argument", "Text" }
+            argument = "Text"
         };
 
         Call.WithFakes<CallMe>(nameof(CallMe.StaticActionWithParameter), parameters);
@@ -48,9 +48,9 @@ public class CallStaticAction : CallActionsTests
     
     public override void WithInvalidParameterNames_ThrowsFakeItDiscoveryException()
     {
-        var args = new Dictionary<string, object?>
+        var args = new 
         {
-            { "text", 123 }
+            text = 123
         };
         
         Assert.Throws<FakeItDiscoveryException>(
@@ -59,9 +59,9 @@ public class CallStaticAction : CallActionsTests
 
     public override void WithInvalidParameterType_ThrowsFakeItDiscoveryException()
     {
-        var args = new Dictionary<string, object?>
+        var args = new 
         {
-            { "text", 123 }
+            text = 123
         };
         
         Assert.Throws<FakeItDiscoveryException>(
@@ -70,9 +70,9 @@ public class CallStaticAction : CallActionsTests
 
     public override void TooManyOverloadedActionsFound_ThrowsException()
     {
-        var args = new Dictionary<string, object?>
+        var args = new 
         {
-            { "argument1", "text" }
+            argument1 = "text"
         };
         
         Assert.Throws<FakeItDiscoveryException>(

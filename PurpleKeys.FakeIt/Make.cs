@@ -1,5 +1,5 @@
-﻿using PurpleKeys.FakeIt.Internal;
-using System.Reflection;
+﻿using System.Reflection;
+using PurpleKeys.FakeIt.InternalUse;
 
 namespace PurpleKeys.FakeIt
 {
@@ -20,19 +20,20 @@ namespace PurpleKeys.FakeIt
             return (T)((ConstructorInfo)constructors[0]).Invoke(arguments);
         }
 
-        public static T WithFakes<T>(Dictionary<string, object?> withDependencies)
+        public static T WithFakes<T>(object withDependencies)
         {
+            var specifiedDependencyDictionary = ReflectionHelper.ObjectToDictionary(withDependencies);
             var constructors = PublicConstructors<T>();
-            if (!ReflectionHelper.TryParametersForMethod(constructors, withDependencies,
+            if (!ReflectionHelper.TryParametersForMethod(constructors, specifiedDependencyDictionary,
                     out var matchingConstructor, out var matchingParameters, out var matchingErrorMessage))
             {
                 throw FakeItDiscoveryException.CreateStatic(
                     matchingErrorMessage,
                     typeof(T),
                     "Constructor",
-                    withDependencies);
+                    specifiedDependencyDictionary);
             }
-            var arguments = MockFactory.ParametersToArg(matchingParameters!, withDependencies);
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedDependencyDictionary);
 
             return (T)((ConstructorInfo)matchingConstructor!).Invoke(arguments);
         }
