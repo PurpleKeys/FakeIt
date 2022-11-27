@@ -4,15 +4,17 @@ namespace PurpleKeys.FakeIt.Internal
 {
     internal static class ReflectionHelper
     {
-        public static bool MethodHasParametersForAllParameters(MethodBase method,
-            Dictionary<string, object?> withDependencies)
+        public static bool MethodHasParametersForAllParameters(
+            MethodBase method,
+            IReadOnlyDictionary<string, object?> withDependencies)
         {
             var parameters = method.GetParameters();
             return withDependencies.Keys.All(k => MatchParametersAndArguments(withDependencies, k, parameters));
         }
 
-        public static (MethodBase, ParameterInfo[]) ParametersForMethod(IReadOnlyList<MethodBase> methods,
-            Dictionary<string, object?> specifiedParameterValues)
+        public static (MethodBase, ParameterInfo[]) ParametersForMethod(
+            IReadOnlyList<MethodBase> methods,
+            IReadOnlyDictionary<string, object?> specifiedParameterValues)
         {
             if (methods.Count == 1)
             {
@@ -38,7 +40,8 @@ namespace PurpleKeys.FakeIt.Internal
             return (possibleOptions[0], possibleOptions[0].GetParameters());
         }
 
-        private static bool MatchParametersAndArguments(IDictionary<string, object?> withDependencies,
+        private static bool MatchParametersAndArguments(
+            IReadOnlyDictionary<string, object?> withDependencies,
             string argumentName, ParameterInfo[] parameters)
         {
             var parameter = parameters.FirstOrDefault(p => p.Name == argumentName);

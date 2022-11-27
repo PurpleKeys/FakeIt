@@ -1,5 +1,6 @@
 namespace PurpleKeys.UnitTest.FakeIt.Make.WithFakes;
 using PurpleKeys.FakeIt;
+using System.Diagnostics.CodeAnalysis;
 
 public class GivenClassWithOnlyOneDefaultConstructor
 {
@@ -73,10 +74,12 @@ public class GivenClassWithOnlyOneDefaultConstructor
         Assert.NotNull(result.ParameterValue);
     }
 
+    [ExcludeFromCodeCoverage]
     public class Parameter
     {
     }
 
+    [ExcludeFromCodeCoverage]
     public class MakeThis<T>
     {
         public MakeThis(T parameter)

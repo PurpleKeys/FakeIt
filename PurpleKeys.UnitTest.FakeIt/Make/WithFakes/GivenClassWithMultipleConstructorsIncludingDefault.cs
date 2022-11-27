@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace PurpleKeys.UnitTest.FakeIt.Make.WithFakes;
 
 using PurpleKeys.FakeIt;
@@ -31,6 +33,7 @@ public class GivenClassWithMultipleConstructorsIncludingDefault
         }));
     }
 
+    [ExcludeFromCodeCoverage]
     public class MakeThis
     {
         public string? Parameter { get; }
@@ -45,6 +48,7 @@ public class GivenClassWithMultipleConstructorsIncludingDefault
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public class MakeThisWithMoreOverloads
     {
         public string? Parameter { get; }
