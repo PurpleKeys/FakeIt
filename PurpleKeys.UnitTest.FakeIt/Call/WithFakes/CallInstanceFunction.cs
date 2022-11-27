@@ -19,9 +19,9 @@ namespace PurpleKeys.UnitTest.FakeIt.Call.WithFakes
         [Fact]
         public override void WithProvidedValues_ReturnsValue()
         {
-            var args = new Dictionary<string, object?>
+            var args = new
             {
-                { "text", "TestValue" }
+                text = "TestValue" 
             };
 
             var target = new CallMe();
@@ -35,9 +35,9 @@ namespace PurpleKeys.UnitTest.FakeIt.Call.WithFakes
         [InlineData(nameof(CallMe.FuncWithParameter))]
         public override void WithInvalidParameterNames_ThrowsFakeItDiscoveryException(string methodName)
         {
-            var args = new Dictionary<string, object?>
+            var args = new 
             {
-                { "invalidName", "TestValue" }
+                invalidName = "TestValue"
             };
 
             var target = new CallMe();
@@ -55,9 +55,9 @@ namespace PurpleKeys.UnitTest.FakeIt.Call.WithFakes
         [Fact]
         public override void WithInvalidParameterType_ThrowsFakeItDiscoveryException()
         {
-            var args = new Dictionary<string, object?>
+            var args = new 
             {
-                { "text", 123 }
+                text = 123
             };
 
             var target = new CallMe();

@@ -25,9 +25,9 @@ public class CallInstanceAction : CallActionsTests
     
     public override void WithInvalidParameterNames_ThrowsFakeItDiscoveryException()
     {
-        var parameters = new Dictionary<string, object?>
+        var parameters = new 
         {
-            { "parameter", "text" }
+            parameter = "text"
         };
         Assert.Throws<FakeItDiscoveryException>(() =>
             Call.WithFakes(this, nameof(CallMe.ActionWithParameter), parameters));
@@ -35,9 +35,9 @@ public class CallInstanceAction : CallActionsTests
     
     public override void WithInvalidParameterType_ThrowsFakeItDiscoveryException()
     {
-        var args = new Dictionary<string, object?>
+        var args = new 
         {
-            { "text", 123 }
+            text = 123
         };
 
         var target = new CallMe();
@@ -47,9 +47,9 @@ public class CallInstanceAction : CallActionsTests
     
     public override void WithParameter_CallsAction()
     {
-        var parameters = new Dictionary<string, object?>
+        var parameters = new 
         {
-            { "argument", "Text" }
+            argument = "Text"
         };
 
         var target = new CallMe();
@@ -74,9 +74,9 @@ public class CallInstanceAction : CallActionsTests
 
     public override void TooManyOverloadedActionsFound_ThrowsException()
     {
-        var args = new Dictionary<string, object?>
+        var args = new 
         {
-            { "argument1", "text" }
+            argument1 = "text"
         };
 
         var target = new CallMe();

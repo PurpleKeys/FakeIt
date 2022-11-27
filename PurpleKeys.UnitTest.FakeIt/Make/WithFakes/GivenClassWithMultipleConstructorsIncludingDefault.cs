@@ -14,9 +14,9 @@ public class GivenClassWithMultipleConstructorsIncludingDefault
     [Fact]
     public void NonDefaultParameterIsProvided_InstanceIsReturned()
     {
-        var result = Make.WithFakes<MakeThis>(new Dictionary<string, object?>
+        var result = Make.WithFakes<MakeThis>(new
         {
-            { "parameter", "Text" }
+            parameter = "Text"
         });
 
         Assert.NotNull(result);
@@ -26,9 +26,9 @@ public class GivenClassWithMultipleConstructorsIncludingDefault
     [Fact]
     public void PartialParametersAreProvided_ThrowsFakeItDiscoveryException()
     {
-        Assert.Throws<FakeItDiscoveryException>(() => Make.WithFakes<MakeThis>(new Dictionary<string, object?>
+        Assert.Throws<FakeItDiscoveryException>(() => Make.WithFakes<MakeThis>(new 
         {
-            { "parameter2", 123 }
+            parameter2 = 123 
         }));
     }
 

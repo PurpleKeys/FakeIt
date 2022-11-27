@@ -1,7 +1,7 @@
-﻿using Moq;
-using System.Reflection;
+﻿using System.Reflection;
+using Moq;
 
-namespace PurpleKeys.FakeIt.Internal
+namespace PurpleKeys.FakeIt.InternalUse
 {
     internal static class MockFactory
     {
