@@ -10,8 +10,10 @@ namespace PurpleKeys.FakeIt
             var constructors = PublicConstructors<T>();
             if (constructors.Length != 1)
             {
-                throw new InvalidOperationException(
-                    "Can not Fake It when a constructor is not available or has multiple public constructors");
+                throw FakeItDiscoveryException.CreateInstance(
+                    "Can not Fake It when a constructor is not available or has multiple public constructors.",
+                    typeof(T),
+                    "constructor");
             }
 
             var arguments = MockFactory.ParametersToArg(constructors[0].GetParameters());
@@ -21,10 +23,18 @@ namespace PurpleKeys.FakeIt
         public static T WithFakes<T>(Dictionary<string, object?> withDependencies)
         {
             var constructors = PublicConstructors<T>();
-            var (constructor, parameters) = ReflectionHelper.ParametersForMethod(constructors, withDependencies);
-            var arguments = MockFactory.ParametersToArg(parameters, withDependencies);
+            if (!ReflectionHelper.TryParametersForMethod(constructors, withDependencies,
+                    out var matchingConstructor, out var matchingParameters, out var matchingErrorMessage))
+            {
+                throw FakeItDiscoveryException.CreateStatic(
+                    matchingErrorMessage,
+                    typeof(T),
+                    "Constructor",
+                    withDependencies);
+            }
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, withDependencies);
 
-            return (T)((ConstructorInfo)constructor).Invoke(arguments);
+            return (T)((ConstructorInfo)matchingConstructor!).Invoke(arguments);
         }
 
         private static MethodBase[] PublicConstructors<T>()

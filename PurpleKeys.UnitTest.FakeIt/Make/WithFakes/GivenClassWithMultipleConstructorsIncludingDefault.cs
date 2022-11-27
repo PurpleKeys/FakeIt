@@ -3,13 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 namespace PurpleKeys.UnitTest.FakeIt.Make.WithFakes;
 
 using PurpleKeys.FakeIt;
-
 public class GivenClassWithMultipleConstructorsIncludingDefault
 {
     [Fact]
-    public void GivenNoParameters_InvalidOperationExceptionIsThrown()
+    public void GivenNoParametersIsAmbiguous_ThrowsFakeItDiscoveryException()
     {
-        Assert.Throws<InvalidOperationException>(Make.WithFakes<MakeThis>);
+        Assert.Throws<FakeItDiscoveryException>(Make.WithFakes<MakeThis>);
     }
 
     [Fact]
@@ -25,9 +24,9 @@ public class GivenClassWithMultipleConstructorsIncludingDefault
     }
 
     [Fact]
-    public void PartialParametersAreProvided_InvalidOperationExceptionIsThrown()
+    public void PartialParametersAreProvided_ThrowsFakeItDiscoveryException()
     {
-        Assert.Throws<InvalidOperationException>(() => Make.WithFakes<MakeThis>(new Dictionary<string, object?>
+        Assert.Throws<FakeItDiscoveryException>(() => Make.WithFakes<MakeThis>(new Dictionary<string, object?>
         {
             { "parameter2", 123 }
         }));

@@ -14,14 +14,14 @@ public class GivenClassWithOnlyDefaultConstructor
     }
 
     [Fact]
-    public void ParameterIsProvided_InvalidOperationExceptionIsThrown()
+    public void ParameterIsProvided_ThrowsFakeItDiscoveryException()
     {
         var args = new Dictionary<string, object?>
         {
             { "parameter", new object() }
         };
 
-        Assert.Throws<InvalidOperationException>(() =>
+        Assert.Throws<FakeItDiscoveryException>(() =>
             Make.WithFakes<MakeThis>(args));
     }
 

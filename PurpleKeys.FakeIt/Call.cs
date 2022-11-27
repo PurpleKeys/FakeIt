@@ -12,8 +12,8 @@ namespace PurpleKeys.FakeIt
             actionName = actionName ?? throw new ArgumentNullException(nameof(actionName));
 
             var targetMethods = TargetMethods<TTarget>(actionName, BindingFlags.Instance);
-
-            RequiredSingleActionGuard(targetMethods);
+            
+            RequiredSingleActionGuard<TTarget>(targetMethods, actionName, null, true);
 
             var parameters = targetMethods[0].GetParameters();
             var arguments = MockFactory.ParametersToArg(parameters);
@@ -26,8 +26,8 @@ namespace PurpleKeys.FakeIt
             actionName = actionName ?? throw new ArgumentNullException(nameof(actionName));
 
             var targetMethods = TargetMethods<TTarget>(actionName, BindingFlags.Static);
-
-            RequiredSingleActionGuard(targetMethods);
+            
+            RequiredSingleActionGuard<TTarget>(targetMethods, actionName, null, false);
 
             var parameters = targetMethods[0].GetParameters();
             var arguments = MockFactory.ParametersToArg(parameters);
@@ -43,12 +43,20 @@ namespace PurpleKeys.FakeIt
 
             var methods = TargetMethods<TTarget>(actionName, BindingFlags.Static);
 
-            RequiredSingleActionGuard(methods);
+            RequiredSingleActionGuard<TTarget>(methods, actionName, specifiedParameterValues, false);
 
-            var (method, parameters) = ReflectionHelper.ParametersForMethod(methods, specifiedParameterValues);
-            var arguments = MockFactory.ParametersToArg(parameters, specifiedParameterValues);
+            if (!ReflectionHelper.TryParametersForMethod(methods, specifiedParameterValues, 
+                    out var matchingMethod, out var matchingParameters, out var matchingErrorMessage))
+            {
+                throw FakeItDiscoveryException.CreateStatic(
+                    matchingErrorMessage, 
+                    typeof(TTarget), 
+                    actionName,
+                    specifiedParameterValues);
+            }
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParameterValues);
 
-            method.Invoke(null, arguments);
+            matchingMethod!.Invoke(null, arguments);
         }
 
         public static void WithFakes<TTarget>(
@@ -63,10 +71,19 @@ namespace PurpleKeys.FakeIt
 
             var methods = TargetMethods<TTarget>(actionName, BindingFlags.Instance);
 
-            var (method, parameters) = ReflectionHelper.ParametersForMethod(methods, specifiedParameterValues);
-            var arguments = MockFactory.ParametersToArg(parameters, specifiedParameterValues);
+            if (!ReflectionHelper.TryParametersForMethod(methods, specifiedParameterValues,
+                    out var matchingMethod, out var matchingParameters, out var matchingErrorMessage))
+            {
+                throw FakeItDiscoveryException.CreateInstance(
+                    matchingErrorMessage,
+                    typeof(TTarget),
+                    actionName,
+                    specifiedParameterValues);
+            }
 
-            method.Invoke(target, arguments);
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParameterValues);
+
+            matchingMethod!.Invoke(target, arguments);
         }
 
         #endregion
@@ -76,7 +93,7 @@ namespace PurpleKeys.FakeIt
         {
             var targetMethods = TargetMethods<TTarget, TReturn>(method, BindingFlags.Instance);
 
-            RequiredSingleActionGuard(targetMethods);
+            RequiredSingleActionGuard<TTarget>(targetMethods, method, null, true);
 
             var parameters = targetMethods[0].GetParameters();
             var arguments = MockFactory.ParametersToArg(parameters);
@@ -88,7 +105,7 @@ namespace PurpleKeys.FakeIt
         {
             var targetMethods = TargetMethods<TTarget, TReturn>(method, BindingFlags.Static);
 
-            RequiredSingleActionGuard(targetMethods);
+            RequiredSingleActionGuard<TTarget>(targetMethods, method, null, false);
 
             var parameters = targetMethods[0].GetParameters();
             var arguments = MockFactory.ParametersToArg(parameters);
@@ -100,32 +117,47 @@ namespace PurpleKeys.FakeIt
         {
             var targetMethods = TargetMethods<TTarget, TReturn>(functionName, BindingFlags.Static);
 
-            RequiredSingleActionGuard(targetMethods);
+            RequiredSingleActionGuard<TTarget>(targetMethods, functionName, specifiedParameterValues, false);
 
-            var (method, parameters) = ReflectionHelper.ParametersForMethod(targetMethods, specifiedParameterValues);
-            var arguments = MockFactory.ParametersToArg(parameters, specifiedParameterValues);
+            if (!ReflectionHelper.TryParametersForMethod(targetMethods, specifiedParameterValues,
+                    out var matchingMethod, out var matchingParameters, out var matchingErrorMessage))
+            {
+                throw FakeItDiscoveryException.CreateStatic(
+                    matchingErrorMessage,
+                    typeof(TTarget),
+                    functionName,
+                    specifiedParameterValues);
+            }
 
-            return (TReturn?)method.Invoke(null, arguments);
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParameterValues);
+
+            return (TReturn?)matchingMethod!.Invoke(null, arguments);
         }
 
         public static TReturn? WithFakes<TTarget, TReturn>(TTarget target, string functionName, IReadOnlyDictionary<string, object?> specifiedParameterValues)
         {
             var targetMethods = TargetMethods<TTarget, TReturn>(functionName, BindingFlags.Instance);
 
-            RequiredSingleActionGuard(targetMethods);
+            RequiredSingleActionGuard<TTarget>(targetMethods, functionName, specifiedParameterValues, true);
 
-            var (method, parameters) = ReflectionHelper.ParametersForMethod(targetMethods, specifiedParameterValues);
-            var arguments = MockFactory.ParametersToArg(parameters, specifiedParameterValues);
+            if (!ReflectionHelper.TryParametersForMethod(targetMethods, specifiedParameterValues,
+                    out var matchingMethod, out var matchingParameters, out var matchingErrorMessage))
+            {
+                throw FakeItDiscoveryException.CreateInstance(
+                    matchingErrorMessage,
+                    typeof(TTarget),
+                    functionName,
+                    specifiedParameterValues);
+            }
+            var arguments = MockFactory.ParametersToArg(matchingParameters!, specifiedParameterValues);
 
-            return (TReturn?)method.Invoke(target, arguments);
+            return (TReturn?)matchingMethod!.Invoke(target, arguments);
         }
 
         #endregion
 
         private static MethodInfo[] TargetMethods<TTarget>(string method, BindingFlags staticOrInstance)
         {
-            method = method ?? throw new ArgumentNullException(nameof(method));
-            
             return typeof(TTarget)
                 .GetMethods(BindingFlags.Public | staticOrInstance)
                 .Where(m => m.Name == method).ToArray();
@@ -133,8 +165,6 @@ namespace PurpleKeys.FakeIt
 
         private static MethodInfo[] TargetMethods<TTarget, TReturn>(string method, BindingFlags staticOrInstance)
         {
-            method = method ?? throw new ArgumentNullException(nameof(method));
-
             return typeof(TTarget)
                 .GetMethods(BindingFlags.Public | staticOrInstance)
                 .Where(m => m.Name == method && 
@@ -143,17 +173,24 @@ namespace PurpleKeys.FakeIt
                             ).ToArray();
         }
 
-        private static void RequiredSingleActionGuard(IReadOnlyCollection<MethodInfo> targetMethods)
+        private static void RequiredSingleActionGuard<T>(
+            IReadOnlyCollection<MethodInfo> targetMethods,
+            string method, 
+            IReadOnlyDictionary<string, object?>? parameters, 
+            bool isInstance)
         {
-            if (targetMethods.Count == 0)
+            if (targetMethods.Count == 1)
             {
-                throw new ArgumentException("Can not Fake It when method can not be found");
+                return;
             }
 
-            if (targetMethods.Count > 1)
-            {
-                throw new ArgumentException("Can not Fake It when more than one method is found");
-            }
+            var message = targetMethods.Count == 0
+                ? "Can not Fake It when method can not be found"
+                : "Can not Fake It when more than one method is found";
+
+            throw isInstance
+                ? FakeItDiscoveryException.CreateInstance(message, typeof(T), method, parameters)
+                : FakeItDiscoveryException.CreateStatic(message, typeof(T), method, parameters);
         }
     }
 }

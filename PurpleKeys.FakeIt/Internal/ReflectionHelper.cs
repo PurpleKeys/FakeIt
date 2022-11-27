@@ -12,32 +12,33 @@ namespace PurpleKeys.FakeIt.Internal
             return withDependencies.Keys.All(k => MatchParametersAndArguments(withDependencies, k, parameters));
         }
 
-        public static (MethodBase, ParameterInfo[]) ParametersForMethod(
+        public static bool TryParametersForMethod(
             IReadOnlyList<MethodBase> methods,
-            IReadOnlyDictionary<string, object?> specifiedParameterValues)
+            IReadOnlyDictionary<string, object?> specifiedParameterValues,
+            out MethodBase? matchingMethod, 
+            out ParameterInfo[]? matchingParameters,
+            out string matchingErrorMessage)
         {
-            if (methods.Count == 1)
-            {
-                if (!MethodHasParametersForAllParameters(methods[0], specifiedParameterValues))
-                {
-                    throw new InvalidOperationException(
-                        "Can not Fake It with dependencies not existing on the method.");
-                }
-
-                var parameters = methods[0].GetParameters();
-                return (methods[0], parameters);
-            }
-
             var possibleOptions = methods
                 .Where(c => MethodHasParametersForAllParameters(c, specifiedParameterValues))
                 .ToArray();
 
             if (possibleOptions.Length != 1)
             {
-                throw new InvalidOperationException("Can not Fake It with dependencies not existing on the method.");
+                var message = possibleOptions.Length == 0
+                    ? "Can not Fake It when no method can be found"
+                    : "Can not Fake It when more than one method is found. Try requesting a more specific overload";
+
+                matchingMethod = null;
+                matchingParameters = null;
+                matchingErrorMessage = message;
+                return false;
             }
 
-            return (possibleOptions[0], possibleOptions[0].GetParameters());
+            matchingMethod = possibleOptions[0];
+            matchingParameters = possibleOptions[0].GetParameters();
+            matchingErrorMessage = string.Empty;
+            return true;
         }
 
         private static bool MatchParametersAndArguments(
