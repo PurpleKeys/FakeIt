@@ -1,14 +1,13 @@
 ﻿namespace PurpleKeys.UnitTest.FakeIt.Call.WithFakes;
 
 using PurpleKeys.FakeIt;
-using System.Diagnostics.CodeAnalysis;
-
-public class CallActionsTests
+public class CallInstanceAction : CallActionsTests
 {
-    [Theory]    
+
+    [Theory]
     [InlineData(nameof(CallMe.Action))]
     [InlineData(nameof(CallMe.ActionWithParameter))]
-    public void ActionWithNoProvidedValues_IsInvoked(string methodName)
+    public override void WithNoProvidedValues_IsInvoked(string methodName)
     {
         var target = new CallMe();
         Call.WithFakes(target, methodName);
@@ -16,40 +15,37 @@ public class CallActionsTests
     }
 
     [Theory]
-    [InlineData(nameof(CallMe.StaticAction))]
-    [InlineData(nameof(CallMe.StaticActionWithParameter))]
-    public void StaticActionWithNoProvidedValues_IsInvoked(string methodName)
+    [InlineData(nameof(CallMe.NonPublicAction))]
+    [InlineData(nameof(CallMe.NonPublicActionWithParameter))]
+    public override void NonPublicWithNoProvidedValues_ThrowsFakeItDiscoveryException(string methodName)
     {
-        CallMe.StaticActionInvokes = 0;
-        Call.WithFakes<CallMe>(methodName);
-        Assert.Equal(1, CallMe.StaticActionInvokes);
+        var target = new CallMe();
+        Assert.Throws<FakeItDiscoveryException>(() => Call.WithFakes(target, methodName));
     }
-
-    [Fact]
-    public void ActionWithUnrecognisedParameter_ThrowInvalidOperationException()
+    
+    public override void WithInvalidParameterNames_ThrowsFakeItDiscoveryException()
     {
         var parameters = new Dictionary<string, object?>
         {
             { "parameter", "text" }
         };
-        Assert.Throws<InvalidOperationException>(() =>
+        Assert.Throws<FakeItDiscoveryException>(() =>
             Call.WithFakes(this, nameof(CallMe.ActionWithParameter), parameters));
     }
-
-    [Fact]
-    public void ActionWithIncorrectParameterType_ThrowInvalidOperationException()
+    
+    public override void WithInvalidParameterType_ThrowsFakeItDiscoveryException()
     {
-        var parameters = new Dictionary<string, object?>
+        var args = new Dictionary<string, object?>
         {
-            { "argument", 123 }
+            { "text", 123 }
         };
-        var target = new CallMe();
-        Assert.Throws<InvalidOperationException>(() =>
-            Call.WithFakes(target, nameof(CallMe.ActionWithParameter), parameters));
-    }
 
-    [Fact]
-    public void ActionWithParameter_CallsAction()
+        var target = new CallMe();
+        Assert.Throws<FakeItDiscoveryException>(
+            () => Call.WithFakes<CallMe, string>(target, nameof(CallMe.ActionWithParameter), args));
+    }
+    
+    public override void WithParameter_CallsAction()
     {
         var parameters = new Dictionary<string, object?>
         {
@@ -64,79 +60,27 @@ public class CallActionsTests
         Assert.Equal("Text", target.Argument);
     }
 
-    [Fact]
-    public void StaticActionWithParameter_CallsAction()
+    public override void NoActionCanBeFound_ThrowsFakeItDiscoveryException()
     {
-        CallMe.StaticActionInvokes = 0;
-        var parameters = new Dictionary<string, object?>
+        var target = new CallMe();
+        Assert.Throws<FakeItDiscoveryException>(() => Call.WithFakes(target, "MissingAction"));
+    }
+    
+    public override void TooManyActionsFound_ThrowsException()
+    {
+        var target = new CallMe();
+        Assert.ThrowsAny<Exception>(() => Call.WithFakes(target, nameof(CallMe.StaticOverloadedAction)));
+    }
+
+    public override void TooManyOverloadedActionsFound_ThrowsException()
+    {
+        var args = new Dictionary<string, object?>
         {
-            { "argument", "Text" }
+            { "argument1", "text" }
         };
-        
-        Call.WithFakes<CallMe>(nameof(CallMe.StaticActionWithParameter), parameters);
 
-        Assert.Equal(1, CallMe.StaticActionInvokes);
-        Assert.Equal("Text", CallMe.StaticArgument);
-    }
-
-    [Fact]
-    public void StaticAction_CanNotBeFound_ThrowsException()
-    {
-        Assert.ThrowsAny<Exception>(() => Call.WithFakes<CallMe>("MissingAction"));
-    }
-
-    [Fact]
-    public void StaticAction_TooManyFound_ThrowsException()
-    {
-        Assert.ThrowsAny<Exception>(() => Call.WithFakes<CallMe>(nameof(CallMe.StaticOverloadedAction)));
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class CallMe
-    {
-        private int _actionInvokes;
-        public int ActionInvokes => _actionInvokes;
-
-        private static int _staticActionInvokes;
-
-        public static int StaticActionInvokes
-        {
-            get => _staticActionInvokes;
-            set => _staticActionInvokes = value;
-        }
-
-        public string? Argument { get; set; }
-
-        public static string? StaticArgument { get; set; }
-
-        public void Action()
-        {
-            Interlocked.Increment(ref _actionInvokes);
-        }
-
-        public void ActionWithParameter(string argument)
-        {
-            Interlocked.Increment(ref _actionInvokes);
-            Argument = argument;
-        }
-
-        public static void StaticAction()
-        {
-            Interlocked.Increment(ref _staticActionInvokes);
-        }
-
-        public static void StaticActionWithParameter(string argument)
-        {
-            Interlocked.Increment(ref _staticActionInvokes);
-            StaticArgument = argument;
-        }
-
-        public static void StaticOverloadedAction()
-        {
-        }
-
-        public static void StaticOverloadedAction(string argument)
-        {
-        }
+        var target = new CallMe();
+        Assert.Throws<FakeItDiscoveryException>(
+            () => Call.WithFakes<CallMe, string>(target, nameof(CallMe.ParameterizedOverloadedAction), args));
     }
 }

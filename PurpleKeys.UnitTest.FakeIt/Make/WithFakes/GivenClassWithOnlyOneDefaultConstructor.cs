@@ -20,26 +20,26 @@ public class GivenClassWithOnlyOneDefaultConstructor
     }
 
     [Fact]
-    public void UnknownParameterIsProvided_InvalidOperationExceptionIsThrown()
+    public void UnknownParameterIsProvided_ThrowsFakeItDiscoveryException()
     {
         var args = new Dictionary<string, object?>
         {
             { "unknownParameter", new Parameter() }
         };
 
-        Assert.Throws<InvalidOperationException>(() =>
+        Assert.Throws<FakeItDiscoveryException>(() =>
             Make.WithFakes<MakeThis<Parameter>>(args));
     }
 
     [Fact]
-    public void ParameterOfWrongTypeIsProvided_InvalidOperationExceptionIsThrown()
+    public void ParameterOfWrongTypeIsProvided_ThrowsFakeItDiscoveryException()
     {
         var args = new Dictionary<string, object?>
         {
             { "parameter", new object() }
         };
 
-        Assert.Throws<InvalidOperationException>(() =>
+        Assert.Throws<FakeItDiscoveryException>(() =>
             Make.WithFakes<MakeThis<Parameter>>(args));
     }
 
