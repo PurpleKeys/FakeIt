@@ -1,6 +1,7 @@
 namespace PurpleKeys.UnitTest.FakeIt.Make.WithFakes;
 
 using PurpleKeys.FakeIt;
+using System.Diagnostics.CodeAnalysis;
 
 public class GivenClassWithOnlyDefaultConstructor
 {
@@ -24,6 +25,7 @@ public class GivenClassWithOnlyDefaultConstructor
             Make.WithFakes<MakeThis>(args));
     }
 
+    [ExcludeFromCodeCoverage]
     public class MakeThis
     {
     }

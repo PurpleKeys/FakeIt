@@ -1,12 +1,13 @@
 ﻿namespace PurpleKeys.UnitTest.FakeIt.Call.WithFakes;
 
 using PurpleKeys.FakeIt;
+using System.Diagnostics.CodeAnalysis;
 
-public class CallTests
+public class CallActionsTests
 {
-    [Theory]
-    [InlineData("Action")]
-    [InlineData("ActionWithParameter")]
+    [Theory]    
+    [InlineData(nameof(CallMe.Action))]
+    [InlineData(nameof(CallMe.ActionWithParameter))]
     public void ActionWithNoProvidedValues_IsInvoked(string methodName)
     {
         var target = new CallMe();
@@ -15,8 +16,8 @@ public class CallTests
     }
 
     [Theory]
-    [InlineData("StaticAction")]
-    [InlineData("StaticActionWithParameter")]
+    [InlineData(nameof(CallMe.StaticAction))]
+    [InlineData(nameof(CallMe.StaticActionWithParameter))]
     public void StaticActionWithNoProvidedValues_IsInvoked(string methodName)
     {
         CallMe.StaticActionInvokes = 0;
@@ -63,6 +64,34 @@ public class CallTests
         Assert.Equal("Text", target.Argument);
     }
 
+    [Fact]
+    public void StaticActionWithParameter_CallsAction()
+    {
+        CallMe.StaticActionInvokes = 0;
+        var parameters = new Dictionary<string, object?>
+        {
+            { "argument", "Text" }
+        };
+        
+        Call.WithFakes<CallMe>(nameof(CallMe.StaticActionWithParameter), parameters);
+
+        Assert.Equal(1, CallMe.StaticActionInvokes);
+        Assert.Equal("Text", CallMe.StaticArgument);
+    }
+
+    [Fact]
+    public void StaticAction_CanNotBeFound_ThrowsException()
+    {
+        Assert.ThrowsAny<Exception>(() => Call.WithFakes<CallMe>("MissingAction"));
+    }
+
+    [Fact]
+    public void StaticAction_TooManyFound_ThrowsException()
+    {
+        Assert.ThrowsAny<Exception>(() => Call.WithFakes<CallMe>(nameof(CallMe.StaticOverloadedAction)));
+    }
+
+    [ExcludeFromCodeCoverage]
     public class CallMe
     {
         private int _actionInvokes;
@@ -100,6 +129,14 @@ public class CallTests
         {
             Interlocked.Increment(ref _staticActionInvokes);
             StaticArgument = argument;
+        }
+
+        public static void StaticOverloadedAction()
+        {
+        }
+
+        public static void StaticOverloadedAction(string argument)
+        {
         }
     }
 }
